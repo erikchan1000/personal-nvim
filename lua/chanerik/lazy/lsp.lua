@@ -11,6 +11,7 @@ return {
         "L3MON4D3/LuaSnip",
         "saadparwaiz1/cmp_luasnip",
         "j-hui/fidget.nvim",
+        "jose-elias-alvarez/null-ls.nvim",
     },
 
     config = function()
@@ -24,11 +25,38 @@ return {
 
         require("fidget").setup({})
         require("mason").setup()
+        local null_ls = require("null-ls")
+
+        null_ls.setup({
+            sources = {
+                -- Prettier for formatting
+                null_ls.builtins.formatting.prettier.with({
+                    filetypes = { "javascript", "typescript", "css", "html", "json", "yaml", "markdown", "typescriptreact" },
+                }),
+
+                -- ESLint for diagnostics and code actions
+                null_ls.builtins.diagnostics.eslint,
+                null_ls.builtins.code_actions.eslint,
+            },
+            on_attach = function(client, bufnr)
+                -- Format on save
+                if client.supports_method("textDocument/formatting") then
+                    vim.api.nvim_create_autocmd("BufWritePre", {
+                        buffer = bufnr,
+                        callback = function()
+                            vim.lsp.buf.format({ bufnr = bufnr })
+                        end,
+                    })
+                end
+            end,
+        })
+
         require("mason-lspconfig").setup({
             ensure_installed = {
                 "lua_ls",
                 "rust_analyzer",
                 "gopls",
+                "eslint",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -67,6 +95,30 @@ return {
                         }
                     }
                 end,
+                ["eslint"] = function()
+              local lspconfig = require("lspconfig")
+              lspconfig.eslint.setup({
+                  capabilities = capabilities,
+                  settings = {
+                      format = { enable = true }, -- Enable formatting
+                  },
+                  on_attach = function(client, bufnr)
+                      -- Enable formatting on save
+                      if client.server_capabilities.documentFormattingProvider then
+                          vim.api.nvim_create_autocmd("BufWritePre", {
+                              buffer = bufnr,
+                              callback = function()
+                                  vim.lsp.buf.format({ bufnr = bufnr })
+                              end,
+                          })
+                      end
+
+                      -- Define additional keymaps or commands if needed
+                      local opts = { noremap = true, silent = true }
+                      vim.keymap.set("n", "<leader>e", "<cmd>EslintFixAll<CR>", opts)
+                  end,
+              })
+          end,
             }
         })
 

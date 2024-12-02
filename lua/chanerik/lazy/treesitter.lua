@@ -50,7 +50,7 @@ return {
     config = function()
         require("treesitter-context").setup({
             enable = true,  -- Enable this plugin (Can be set to false to disable the plugin)
-            max_lines = 0,  -- How many lines the window should span. Values <= 0 mean no limit.
+            max_lines = 2,  -- How many lines the window should span. Values <= 0 mean no limit.
             trim_scope = 'outer',  -- Remove context lines if they exceed the max_lines limit.
             patterns = {  -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
                 default = {
