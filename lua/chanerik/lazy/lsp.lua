@@ -10,8 +10,7 @@ return {
         "hrsh7th/nvim-cmp",
         "L3MON4D3/LuaSnip",
         "saadparwaiz1/cmp_luasnip",
-        "j-hui/fidget.nvim",
-        "jose-elias-alvarez/null-ls.nvim",
+        "j-hui/fidget.nvim"
     },
 
     config = function()
@@ -25,31 +24,6 @@ return {
 
         require("fidget").setup({})
         require("mason").setup()
-        local null_ls = require("null-ls")
-
-        null_ls.setup({
-            sources = {
-                -- Prettier for formatting
-                null_ls.builtins.formatting.prettier.with({
-                    filetypes = { "javascript", "typescript", "css", "html", "json", "yaml", "markdown", "typescriptreact" },
-                }),
-
-                -- ESLint for diagnostics and code actions
-                null_ls.builtins.diagnostics.eslint,
-                null_ls.builtins.code_actions.eslint,
-            },
-            on_attach = function(client, bufnr)
-                -- Format on save
-                if client.supports_method("textDocument/formatting") then
-                    vim.api.nvim_create_autocmd("BufWritePre", {
-                        buffer = bufnr,
-                        callback = function()
-                            vim.lsp.buf.format({ bufnr = bufnr })
-                        end,
-                    })
-                end
-            end,
-        })
 
         require("mason-lspconfig").setup({
             ensure_installed = {
